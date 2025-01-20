@@ -50,6 +50,9 @@ public interface BedeworkErrorCode {
   /** */
   String badResponse = "org.bedework.exception.badresponse";
 
+  /** */
+  String databaseError = "org.bedework.exception.databaseerror";
+
   /** The name for an entity already exists in the context */
   String duplicateName =
           "org.bedework.exception.duplicatename";

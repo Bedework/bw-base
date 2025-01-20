@@ -16,28 +16,30 @@
     specific language governing permissions and limitations
     under the License.
 */
+package org.bedework.base.exc.persist;
 
-package org.bedework.base.exc;
+import org.bedework.base.exc.BedeworkException;
 
-import static org.bedework.base.exc.BedeworkErrorCode.staleState;
+import static org.bedework.base.exc.BedeworkErrorCode.badRequest;
 
-/** Exception that indicates something changed in the db while we were away.
+/** Exception that indicates we are violating some form of data constraint
  *
  * @author Mike Douglass
  */
-public class BedeworkStaleStateException extends BedeworkException {
+public class BedeworkConstraintViolationException extends
+        BedeworkException {
   /** Constructor
    *
    */
-  public BedeworkStaleStateException() {
-    super(staleState);
+  public BedeworkConstraintViolationException() {
+    super(badRequest);
   }
 
   /** Constructor
   *
    * @param t Throwable
    */
-  public BedeworkStaleStateException(Throwable t) {
+  public BedeworkConstraintViolationException(final Throwable t) {
     super(t);
   }
 
@@ -45,7 +47,7 @@ public class BedeworkStaleStateException extends BedeworkException {
   *
    * @param s String
    */
-  public BedeworkStaleStateException(String s) {
-    super(staleState, s);
+  public BedeworkConstraintViolationException(final String s) {
+    super(badRequest, s);
   }
 }
