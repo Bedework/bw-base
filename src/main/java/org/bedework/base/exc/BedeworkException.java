@@ -18,6 +18,9 @@
 */
 package org.bedework.base.exc;
 
+import java.io.IOException;
+import java.util.Objects;
+
 /** Exception somewhere in bedework
  * <p>You may be asking why an unchecked exception?
  *
@@ -95,5 +98,38 @@ public class BedeworkException extends RuntimeException {
    */
   public String getDetailMessage() {
     return super.getMessage();
+  }
+
+  public static Throwable getRootCause(final Throwable t) {
+    Objects.requireNonNull(t);
+    Throwable rootCause = t;
+    while ((rootCause.getCause() != null) &&
+            (rootCause.getCause() != rootCause)) {
+      rootCause = rootCause.getCause();
+    }
+
+    return rootCause;
+  }
+
+  public record ExcOrFailResult(String message,
+                                BedeworkException exc,
+                                Throwable cause) {}
+
+  public static ExcOrFailResult excOrFail(final Throwable t) {
+    final var cause = getRootCause(t);
+    if ((!(cause instanceof final IOException ioe))) {
+      return new ExcOrFailResult(null, new BedeworkException(t), cause);
+    }
+
+    final var msg = t.getMessage();
+    if (msg.startsWith("Connection reset by peer")) {
+      return new ExcOrFailResult("Connection reset by peer", null, cause);
+    }
+
+    if (msg.contains("Broken pipe")) {
+      return new ExcOrFailResult("Broken pipe", null, cause);
+    }
+
+    return new ExcOrFailResult(null, new BedeworkException(t), cause);
   }
 }
