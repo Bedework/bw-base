@@ -24,15 +24,16 @@ import org.bedework.base.ToString;
  *
  * @author Mike Douglass
  */
-public class GetEntityResponse<T> extends Response {
+public class GetEntityResponse<T> extends Response<GetEntityResponse<T>> {
   private T entity;
 
   /**
    *
    * @param val entity
    */
-  public void setEntity(final T val) {
+  public GetEntityResponse<T> setEntity(final T val) {
     entity = val;
+    return this;
   }
 
   /**
@@ -43,9 +44,8 @@ public class GetEntityResponse<T> extends Response {
   }
 
   @Override
-  public void toStringSegment(final ToString ts) {
-    super.toStringSegment(ts);
-
-    ts.append("entity", getEntity());
+  public ToString toStringSegment(final ToString ts) {
+    return super.toStringSegment(ts)
+                .append("entity", getEntity());
   }
 }

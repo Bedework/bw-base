@@ -27,15 +27,17 @@ import java.util.Collection;
  *
  * @author Mike Douglass
  */
-public class GetEntitiesResponse <T> extends Response {
+public class GetEntitiesResponse<T>
+        extends Response<GetEntitiesResponse<T>> {
   private Collection<T> entities = new ArrayList<>();
 
   /**
    *
    * @param val collection of entities
    */
-  public void setEntities(final Collection<T> val) {
+  public GetEntitiesResponse<T> setEntities(final Collection<T> val) {
     entities = val;
+    return this;
   }
 
   /**
@@ -45,14 +47,19 @@ public class GetEntitiesResponse <T> extends Response {
     return entities;
   }
 
-  public void addEntity(final T val) {
+  public GetEntitiesResponse<T> addEntity(final T val) {
     entities.add(val);
+    return this;
+  }
+
+  public GetEntitiesResponse<T> addAll(final Collection<T> val) {
+    entities.addAll(val);
+    return this;
   }
 
   @Override
-  public void toStringSegment(final ToString ts) {
-    super.toStringSegment(ts);
-
-    ts.append("entities", getEntities());
+  public ToString toStringSegment(final ToString ts) {
+    return super.toStringSegment(ts)
+                .append("entities", getEntities());
   }
 }

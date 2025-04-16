@@ -29,7 +29,7 @@ import javax.xml.namespace.QName;
  *
  * @author Mike Douglass douglm - spherical cow
  */
-public class Response implements Serializable {
+public class Response<T extends Response<T>> implements Serializable {
   public enum Status {
     ok,
     
@@ -70,8 +70,9 @@ public class Response implements Serializable {
     return warnings.isEmpty();
   }
 
-  public void warning(final String val) {
+  public T warning(final String val) {
     warnings.add(val);
+    return (T)this;
   }
 
   public Iterable<String> getWarnings() {
@@ -82,8 +83,9 @@ public class Response implements Serializable {
    *
    * @param val status
    */
-  public void setStatus(final Status val) {
+  public T setStatus(final Status val) {
     status = val;
+    return (T)this;
   }
 
   /**
@@ -97,8 +99,9 @@ public class Response implements Serializable {
    *
    * @param val a message
    */
-  public void setMessage(final String val) {
+  public T setMessage(final String val) {
     message = val;
+    return (T)this;
   }
 
   /**
@@ -120,8 +123,9 @@ public class Response implements Serializable {
    *
    * @param val an error tag
    */
-  public void setErrorTag(final QName val) {
+  public T setErrorTag(final QName val) {
     errorTag = val;
+    return (T)this;
   }
 
   public QName getErrorTag() {
@@ -148,8 +152,9 @@ public class Response implements Serializable {
    *
    * @param val an exception
    */
-  public void setException(final Throwable val) {
+  public T setException(final Throwable val) {
     exception = val;
+    return (T)this;
   }
 
   /**
@@ -163,8 +168,9 @@ public class Response implements Serializable {
   /**
    * @param val an id to identify the request
    */
-  public void setId(final int val) {
+  public T setId(final int val) {
     id = val;
+    return (T)this;
   }
 
   /**
@@ -174,100 +180,69 @@ public class Response implements Serializable {
     return id;
   }
 
-  public static Response ok() {
-    return ok(new Response(), null);
+  public T ok() {
+    return setStatus(Status.ok);
   }
 
-  public static <T extends Response> T ok(final T resp) {
-    resp.setStatus(Status.ok);
-    resp.setMessage(null);
-
-    return resp;
+  public T ok(final String msg) {
+    return setStatus(Status.ok).setMessage(msg);
   }
 
-  public static <T extends Response> T ok(final T resp,
-                                          final String msg) {
-    resp.setStatus(Status.ok);
-    resp.setMessage(msg);
-
-    return resp;
+  public T notFound() {
+    return notFound(null);
   }
 
-  public static <T extends Response> T notFound(final T resp) {
-    return notFound(resp, null);
+  public T notFound(final String msg) {
+    return setStatus(Status.notFound)
+            .setMessage(msg);
   }
 
-  public static <T extends Response> T notFound(final T resp,
-                                                final String msg) {
-    resp.setStatus(Status.notFound);
-    resp.setMessage(msg);
-
-    return resp;
+  public T notOk(final Status status) {
+    return setStatus(status);
   }
 
-  public static <T extends Response> T notOk(final T resp,
-                                             final Status status) {
-    resp.setStatus(status);
-    resp.setMessage(null);
-
-    return resp;
+  public T notOk(final Status status,
+                 final String msg) {
+    return setStatus(status)
+            .setMessage(msg);
   }
 
-  public static <T extends Response> T notOk(final T resp,
-                                             final Status status,
-                                             final String msg) {
-    resp.setStatus(status);
-    resp.setMessage(msg);
-
-    return resp;
+  public T notOk(final Status status,
+                 final QName errorTag) {
+    return setStatus(status)
+            .setErrorTag(errorTag);
   }
 
-  public static <T extends Response> T notOk(final T resp,
-                                             final Status status,
-                                             final QName errorTag) {
-    resp.setStatus(status);
-    resp.setErrorTag(errorTag);
-
-    return resp;
+  public T fromResponse(final Response<?> from) {
+    return setStatus(from.getStatus())
+            .setMessage(from.getMessage())
+            .setException(from.getException());
   }
 
-  public static <T extends Response> T fromResponse(final T resp,
-                                                    final Response from) {
-    resp.setStatus(from.getStatus());
-    resp.setMessage(from.getMessage());
-    resp.setException(from.getException());
-
-    return resp;
+  public T error(final Status status) {
+    return notOk(status);
   }
 
-  public static <T extends Response> T error(final T resp,
-                                             final String msg) {
-    return notOk(resp, Status.failed, msg);
+  public T error(final String msg) {
+    return notOk(Status.failed, msg);
   }
 
-  public static <T extends Response> T error(final T resp,
-                                             final Throwable t) {
-    resp.setException(t);
-    return error(resp, t.getLocalizedMessage());
+  public T error(final Throwable t) {
+    return setException(t).error(t.getLocalizedMessage());
   }
 
-  public static <T extends Response> T invalid(final T resp,
-                                               final String msg) {
-    return notOk(resp, Status.validationError, msg);
+  public T invalid(final String msg) {
+    return notOk(Status.validationError, msg);
   }
 
-  public void toStringSegment(final ToString ts) {
-    ts.append("status", getStatus())
-      .append("message", getMessage())
-      .append("id", getId());
+  public ToString toStringSegment(final ToString ts) {
+    return ts.append("status", getStatus())
+             .append("message", getMessage())
+             .append("id", getId());
   }
 
   @Override
   public String toString() {
-    final ToString ts = new ToString(this);
-
-    toStringSegment(ts);
-    
-    return ts.toString();
+    return toStringSegment(new ToString(this)).toString();
   }
 }
